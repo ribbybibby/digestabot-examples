@@ -33,6 +33,7 @@ jobs:
 
     # Install grype. It's required by chainctl image diff.
     - uses: anchore/scan-action/download-grype@2a3918e906deb404b9630a81a71baaa5798d6f75 # v6.1.0
+      id: download_grype
 
     # Run digestabot. Don't create the PR.
     - uses: chainguard-dev/digestabot@43222237fd8a07dc41a06ca13e931c95ce2cedac # v1.2.2
@@ -55,6 +56,9 @@ jobs:
       run: |
         # Start the PR body
         echo 'body<<EOF' >> "${GITHUB_OUTPUT}"
+
+        # Include the grype binary in the path
+        export PATH="$(dirname '${{steps.download_grype.outputs.cmd}}'):${PATH}"
 
         while read -r item; do
            from_image=$(jq -r '.image + "@" + .digest' <<<$item)

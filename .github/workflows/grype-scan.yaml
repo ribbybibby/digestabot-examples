@@ -22,6 +22,7 @@ jobs:
 
     # Install grype
     - uses: anchore/scan-action/download-grype@2a3918e906deb404b9630a81a71baaa5798d6f75 # v6.1.0
+      id: download_grype
 
     # Run digestabot
     - uses: chainguard-dev/digestabot@43222237fd8a07dc41a06ca13e931c95ce2cedac # v1.2.2
@@ -46,6 +47,9 @@ jobs:
 
         # Start the comment body
         echo 'body<<EOF' >> "${GITHUB_OUTPUT}"
+
+        # Include the grype binary in the path
+        export PATH="$(dirname '${{steps.download_grype.outputs.cmd}}'):${PATH}"
 
         while read -r item; do
           image=$(jq -r '.image + "@" + .updated_digest' <<<$item)
