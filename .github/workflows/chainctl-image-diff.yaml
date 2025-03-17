@@ -142,11 +142,11 @@ jobs:
            fi
 
            # Packages changed
-           packages_changed=$(jq -r '.packages.changed // [] | .[] | select(.current.reference | startswith("pkg:apk/")) | "|" + .name + "|" + .previous.version + "|" + .current.version + "|" + .current.reference + "|"' "${diff_file}")
+           packages_changed=$(jq -r '.packages.changed // [] | .[] | select(.current.reference | startswith("pkg:apk/")) | "|" + .name + "|" + .previous.version + "|" + .current.version + "|"' "${diff_file}")
            if [ ! -z "${packages_changed}" ]; then
              echo '### Packages Changed' >> "${GITHUB_OUTPUT}"
-             echo '| Name | Previous Version | Current Version | Current Reference |' >> "${GITHUB_OUTPUT}"
-             echo '| ---- | ---------------- | --------------- | ----------------- |' >> "${GITHUB_OUTPUT}"
+             echo '| Name | Previous Version | Current Version |' >> "${GITHUB_OUTPUT}"
+             echo '| ---- | ---------------- | --------------- |' >> "${GITHUB_OUTPUT}"
              echo "${packages_changed}" >> "${GITHUB_OUTPUT}"
            fi
 
