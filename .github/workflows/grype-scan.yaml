@@ -48,9 +48,6 @@ jobs:
         # Start the comment body
         echo 'body<<EOF' >> "${GITHUB_OUTPUT}"
 
-        # Include the grype binary in the path
-        export PATH="$(dirname '${{steps.download_grype.outputs.cmd}}'):${PATH}"
-
         while read -r item; do
           image=$(jq -r '.image + "@" + .updated_digest' <<<$item)
 
@@ -66,7 +63,7 @@ jobs:
 
           # Scan the image, save the results
           echo "Scanning ${image}"
-          grype "${image}" --add-cpes-if-none -o json > "${grype_output}"
+          ${{steps.download_grype.outputs.cmd}} "${image}" --add-cpes-if-none -o json > "${grype_output}"
 
           # This is the emoji we will include next to the image in the comment
           # body
