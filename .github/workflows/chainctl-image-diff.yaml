@@ -74,24 +74,28 @@ jobs:
              continue
            fi
 
-           # Use the vendor annotation to identify whether an image is a
-           # Chainguard one. We can't run `chainctl images diff` on
-           # non-Chainguard images.
+           # If the image isn't hosted in cgr.dev, use the vendor annotation to
+           # identify whether an image is a Chainguard one. We can't run
+           # `chainctl images diff` on non-Chainguard images.
            #
            # The `chainctl images diff` command below will verify
            # the signatures when it fetches the SBOM, so we don't need to
            # use signatures here for a verifiable proof that the image came from
            # Chainguard.
-           from_vendor=$(crane manifest "${from_image}" | jq -r '.annotations["org.opencontainers.image.vendor"] // ""')
-           if [[ "${from_vendor}" != "Chainguard" ]]; then
-            echo "Skipping ${from_image} because it isn't a Chainguard image"
-            continue
+           if [[ ! "${from_image}" =~ ^cgr.dev/.+$ ]]; then
+             from_vendor=$(crane manifest "${from_image}" | jq -r '.annotations["org.opencontainers.image.vendor"] // ""')
+             if [[ "${from_vendor}" != "Chainguard" ]]; then
+              echo "Skipping ${from_image} because it isn't a Chainguard image"
+              continue
+             fi
            fi
-           to_vendor=$(crane manifest "${to_image}" | jq -r '.annotations["org.opencontainers.image.vendor"] // ""')
-           if [[ "${to_vendor}" != "Chainguard" ]]; then
-            echo "Skipping ${to_image} because it isn't a Chainguard image"
-            continue
-           fi
+          if [[ ! "${to_image}" =~ ^cgr.dev/.+$ ]]; then
+            to_vendor=$(crane manifest "${to_image}" | jq -r '.annotations["org.opencontainers.image.vendor"] // ""')
+            if [[ "${to_vendor}" != "Chainguard" ]]; then
+              echo "Skipping ${to_image} because it isn't a Chainguard image"
+              continue
+            fi
+          fi
 
            echo "Processing from=${from_image} to=${to_image}"
 
