@@ -3,8 +3,7 @@ name: Chainctl Image Diff
 on:
   workflow_dispatch:
   schedule:
-    # At the end of every day
-    - cron: "0 0 * * *"
+    - cron: "0 0 * * 0"
 
 jobs:
   chainctl-image-diff:
@@ -75,11 +74,23 @@ jobs:
              continue
            fi
 
-           # Skip non-chainguard images
-           # TODO: change this once we support images outside of cgr.dev
-           if [[ ! "${from_image}" =~ ^cgr.dev/.+$ ]] || [[ ! "${to_image}" =~ ^cgr.dev/.+$ ]]; then
-             echo "Skipping because we only support Chainguard images; from=${from_image} to=${to_image}"
-             continue
+           # Use the vendor annotation to identify whether an image is a
+           # Chainguard one. We can't run `chainctl images diff` on
+           # non-Chainguard images.
+           #
+           # The `chainctl images diff` command below will verify
+           # the signatures when it fetches the SBOM, so we don't need to
+           # use signatures here for a verifiable proof that the image came from
+           # Chainguard.
+           from_vendor=$(crane manifest "${from_image}" | jq -r '.annotations["org.opencontainers.image.vendor"] // ""')
+           if [[ "${from_vendor}" != "Chainguard" ]]; then
+            echo "Skipping ${from_image} because it isn't a Chainguard image"
+            continue
+           fi
+           to_vendor=$(crane manifest "${to_image}" | jq -r '.annotations["org.opencontainers.image.vendor"] // ""')
+           if [[ "${to_vendor}" != "Chainguard" ]]; then
+            echo "Skipping ${to_image} because it isn't a Chainguard image"
+            continue
            fi
 
            echo "Processing from=${from_image} to=${to_image}"
