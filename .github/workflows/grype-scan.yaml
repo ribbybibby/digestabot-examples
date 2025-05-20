@@ -21,7 +21,7 @@ jobs:
     - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
     # Install grype
-    - uses: anchore/scan-action/download-grype@dc6246fcaf83ae86fcc6010b9824c30d7320729e # v6.1.0
+    - uses: anchore/scan-action/download-grype@251fd2c39f60e9dee3293aa6715bfd709ba02952 # v6.1.0
       id: download_grype
 
     # Run digestabot
