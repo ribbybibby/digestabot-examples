@@ -35,3 +35,4 @@ jobs:
         commit-message: 'Update Digests'
         branch-for-pr: digestabot
         labels-for-pr: ''
+        use-gitsign: false
